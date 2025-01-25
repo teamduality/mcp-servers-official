@@ -78,14 +78,8 @@ export const UpdateIssueOptionsSchema = z.object({
   state: z.enum(["open", "closed"]).optional(),
 });
 
-export async function getIssue(
-  owner: string,
-  repo: string,
-  issue_number: number
-) {
-  return githubRequest(
-    `https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}`
-  );
+export async function getIssue(owner: string,repo: string,issue_number: number) {
+  return githubRequest(`https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}`);
 }
 
 export async function addIssueComment(
@@ -94,13 +88,10 @@ export async function addIssueComment(
   issue_number: number,
   body: string
 ) {
-  return githubRequest(
-    `https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}/comments`,
-    {
-      method: "POST",
-      body: { body },
-    }
-  );
+  return githubRequest(`https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}/comments`, {
+    method: "POST",
+    body: { body },
+  });
 }
 
 export async function createIssue(
@@ -108,10 +99,13 @@ export async function createIssue(
   repo: string,
   options: z.infer<typeof CreateIssueOptionsSchema>
 ) {
-  return githubRequest(`https://api.github.com/repos/${owner}/${repo}/issues`, {
-    method: "POST",
-    body: options,
-  });
+  return githubRequest(
+    `https://api.github.com/repos/${owner}/${repo}/issues`,
+    {
+      method: "POST",
+      body: options,
+    }
+  );
 }
 
 export async function listIssues(
@@ -138,10 +132,7 @@ export async function updateIssue(
   owner: string,
   repo: string,
   issue_number: number,
-  options: Omit<
-    z.infer<typeof UpdateIssueOptionsSchema>,
-    "owner" | "repo" | "issue_number"
-  >
+  options: Omit<z.infer<typeof UpdateIssueOptionsSchema>, "owner" | "repo" | "issue_number">
 ) {
   return githubRequest(
     `https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}`,

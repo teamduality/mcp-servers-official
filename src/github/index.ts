@@ -5,16 +5,16 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { z } from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
+import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 
-import * as repository from "./operations/repository.js";
-import * as files from "./operations/files.js";
-import * as issues from "./operations/issues.js";
-import * as pulls from "./operations/pulls.js";
-import * as branches from "./operations/branches.js";
-import * as search from "./operations/search.js";
-import * as commits from "./operations/commits.js";
+import * as repository from './operations/repository.js';
+import * as files from './operations/files.js';
+import * as issues from './operations/issues.js';
+import * as pulls from './operations/pulls.js';
+import * as branches from './operations/branches.js';
+import * as search from './operations/search.js';
+import * as commits from './operations/commits.js';
 import {
   GitHubError,
   GitHubValidationError,
@@ -24,7 +24,7 @@ import {
   GitHubRateLimitError,
   GitHubConflictError,
   isGitHubError,
-} from "./common/errors.js";
+} from './common/errors.js';
 
 const server = new Server(
   {
@@ -53,9 +53,7 @@ function formatGitHubError(error: GitHubError): string {
   } else if (error instanceof GitHubPermissionError) {
     message = `Permission Denied: ${error.message}`;
   } else if (error instanceof GitHubRateLimitError) {
-    message = `Rate Limit Exceeded: ${
-      error.message
-    }\nResets at: ${error.resetAt.toISOString()}`;
+    message = `Rate Limit Exceeded: ${error.message}\nResets at: ${error.resetAt.toISOString()}`;
   } else if (error instanceof GitHubConflictError) {
     message = `Conflict: ${error.message}`;
   }
@@ -83,14 +81,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_file_contents",
-        description:
-          "Get the contents of a file or directory from a GitHub repository",
+        description: "Get the contents of a file or directory from a GitHub repository",
         inputSchema: zodToJsonSchema(files.GetFileContentsSchema),
       },
       {
         name: "push_files",
-        description:
-          "Push multiple files to a GitHub repository in a single commit",
+        description: "Push multiple files to a GitHub repository in a single commit",
         inputSchema: zodToJsonSchema(files.PushFilesSchema),
       },
       {
@@ -105,8 +101,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "fork_repository",
-        description:
-          "Fork a GitHub repository to your account or specified organization",
+        description: "Fork a GitHub repository to your account or specified organization",
         inputSchema: zodToJsonSchema(repository.ForkRepositorySchema),
       },
       {
@@ -121,8 +116,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "list_issues",
-        description:
-          "List issues in a GitHub repository with filtering options",
+        description: "List issues in a GitHub repository with filtering options",
         inputSchema: zodToJsonSchema(issues.ListIssuesOptionsSchema),
       },
       {
@@ -142,8 +136,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "search_issues",
-        description:
-          "Search for issues and pull requests across GitHub repositories",
+        description: "Search for issues and pull requests across GitHub repositories",
         inputSchema: zodToJsonSchema(search.SearchIssuesSchema),
       },
       {
@@ -183,23 +176,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
     switch (request.params.name) {
       case "fork_repository": {
-        const args = repository.ForkRepositorySchema.parse(
-          request.params.arguments
-        );
-        const fork = await repository.forkRepository(
-          args.owner,
-          args.repo,
-          args.organization
-        );
+        const args = repository.ForkRepositorySchema.parse(request.params.arguments);
+        const fork = await repository.forkRepository(args.owner, args.repo, args.organization);
         return {
           content: [{ type: "text", text: JSON.stringify(fork, null, 2) }],
         };
       }
 
       case "create_branch": {
-        const args = branches.CreateBranchSchema.parse(
-          request.params.arguments
-        );
+        const args = branches.CreateBranchSchema.parse(request.params.arguments);
         const branch = await branches.createBranchFromRef(
           args.owner,
           args.repo,
@@ -212,9 +197,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "search_repositories": {
-        const args = repository.SearchRepositoriesSchema.parse(
-          request.params.arguments
-        );
+        const args = repository.SearchRepositoriesSchema.parse(request.params.arguments);
         const results = await repository.searchRepositories(
           args.query,
           args.page,
@@ -226,9 +209,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "create_repository": {
-        const args = repository.CreateRepositoryOptionsSchema.parse(
-          request.params.arguments
-        );
+        const args = repository.CreateRepositoryOptionsSchema.parse(request.params.arguments);
         const result = await repository.createRepository(args);
         return {
           content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
@@ -236,9 +217,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "get_file_contents": {
-        const args = files.GetFileContentsSchema.parse(
-          request.params.arguments
-        );
+        const args = files.GetFileContentsSchema.parse(request.params.arguments);
         const contents = await files.getFileContents(
           args.owner,
           args.repo,
@@ -251,9 +230,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "create_or_update_file": {
-        const args = files.CreateOrUpdateFileSchema.parse(
-          request.params.arguments
-        );
+        const args = files.CreateOrUpdateFileSchema.parse(request.params.arguments);
         const result = await files.createOrUpdateFile(
           args.owner,
           args.repo,
@@ -292,14 +269,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "create_pull_request": {
-        const args = pulls.CreatePullRequestSchema.parse(
-          request.params.arguments
-        );
+        const args = pulls.CreatePullRequestSchema.parse(request.params.arguments);
         const pullRequest = await pulls.createPullRequest(args);
         return {
-          content: [
-            { type: "text", text: JSON.stringify(pullRequest, null, 2) },
-          ],
+          content: [{ type: "text", text: JSON.stringify(pullRequest, null, 2) }],
         };
       }
 
@@ -328,9 +301,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "list_issues": {
-        const args = issues.ListIssuesOptionsSchema.parse(
-          request.params.arguments
-        );
+        const args = issues.ListIssuesOptionsSchema.parse(request.params.arguments);
         const { owner, repo, ...options } = args;
         const result = await issues.listIssues(owner, repo, options);
         return {
@@ -339,16 +310,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "update_issue": {
-        const args = issues.UpdateIssueOptionsSchema.parse(
-          request.params.arguments
-        );
+        const args = issues.UpdateIssueOptionsSchema.parse(request.params.arguments);
         const { owner, repo, issue_number, ...options } = args;
-        const result = await issues.updateIssue(
-          owner,
-          repo,
-          issue_number,
-          options
-        );
+        const result = await issues.updateIssue(owner, repo, issue_number, options);
         return {
           content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
         };
@@ -357,12 +321,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "add_issue_comment": {
         const args = issues.IssueCommentSchema.parse(request.params.arguments);
         const { owner, repo, issue_number, body } = args;
-        const result = await issues.addIssueComment(
-          owner,
-          repo,
-          issue_number,
-          body
-        );
+        const result = await issues.addIssueComment(owner, repo, issue_number, body);
         return {
           content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
         };
@@ -384,11 +343,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case "get_issue": {
         const args = issues.GetIssueSchema.parse(request.params.arguments);
-        const issue = await issues.getIssue(
-          args.owner,
-          args.repo,
-          args.issue_number
-        );
+        const issue = await issues.getIssue(args.owner, args.repo, args.issue_number);
         return {
           content: [{ type: "text", text: JSON.stringify(issue, null, 2) }],
         };
@@ -425,9 +380,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "remove_sub_issue": {
-        const args = issues.RemoveSubIssueSchema.parse(
-          request.params.arguments
-        );
+        const args = issues.RemoveSubIssueSchema.parse(request.params.arguments);
         const { owner, repo, issue_number, sub_issue_id } = args;
         const result = await issues.removeSubIssue(
           owner,
